@@ -17,5 +17,6 @@ class MarcaSeeder extends Seeder
     {
         //Crear 50 Marcas ficticias
         Marca::factory(50)->create();
+        Categoria::factory(50)->create();
     }
 }
