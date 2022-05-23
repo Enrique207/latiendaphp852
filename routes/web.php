@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Marca;
 use App\Models\Categoria;
+use App\Http\Controllers\ProductoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,7 @@ Route::get('paises', function() {
 Route::get('prueba', function(){
     //seleccionar marcas:
     $marcas = Marca::all();
+    //seleccionar categorias:
     $categoria = Categoria::all();
     //ingresar marcas y categorias a la vista
 
@@ -73,3 +75,5 @@ Route::get('prueba', function(){
         ->with('marcas', $marcas);
 
 });
+//Rutas REST
+Route::resource('productos', ProductoController::class);
