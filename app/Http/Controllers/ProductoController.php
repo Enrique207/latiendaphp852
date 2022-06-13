@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\Marca;
-use Illuminate\Http\Request;    
+use Illuminate\Http\Request;  
+use Illuminate\Support\Facades\Validator ; 
 
 class ProductoController extends Controller
 {
@@ -45,17 +46,61 @@ class ProductoController extends Controller
      */
     public function store(Request $r)
     {
-        //crear nuevo producto:
-        $p = new Producto();
-        //asignar atributos del producto
-        $p->nombre = $r->nombre;
-        $p->desc = $r->desc;
-        $p->precio = $r->precio;
-        $p->marca_id = $r->marca;
-        $p->categoria_id = $r->categoria;
-        //grabar producto 
-        $p->save();
-        echo"producto guardado";
+        //validaciones
+        //1. Establecer reglas de validacion
+
+        $normas=[
+            "nombre" =>'required|alpha|unique:productos,nombre',
+            "desc" => 'required|min:5|max:20',
+            "precio" => 'required|numeric',
+            "imagen" => 'required|image',
+            "marca" =>  'required',
+            "categoria" => 'required'
+
+        ];
+
+
+
+        //2. crear objeto validador
+        $v = Validator::make($r->all() , $normas);
+
+
+        // 3. Validar
+        if($v->fails()){ 
+            //si la validacion fallo
+            //redirigirme a la vista create(ruta: productos/create)
+            //con los mensajes de error
+            return redirect('productos/create')
+                ->withErrors($v);
+        }else{
+
+            //validacion exitoso
+            $archivo= $r ->imagen;
+            //obtener el nombre original del archivo
+            $nombre_archivo=($archivo->getClientOriginalName());
+            //establecer la ruta de ubicacion de guardado del archivo
+            $ruta=(public_path())."/img";
+            //mover el archivo imagen a la ubicacion y nombre deseado
+            $archivo->move($ruta, $nombre_archivo);
+
+            //crear nuevo producto:
+            $p = new Producto();
+            $p->nombre = $r->nombre;
+            $p->desc = $r->desc;
+            $p->precio = $r->precio;
+            $p->marca_id = $r->marca;
+            $p->categoria_id = $r->categoria;
+            $p->imagen= $nombre_archivo;
+            //grabar producto 
+            $p->save();
+            //redirigir a productos/create
+            //con un mensaje de exito
+            return redirect('productos/create')
+                    ->with('mensajito', 'Producto registrado exitosamente MESSIGATITO');
+        }
+      
+    
+
     
     }
 
